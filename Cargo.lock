@@ -20,6 +20,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "async-traits"
+version = "0.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9b009a4f27206d3d1c853e1e5f8909ca582e846cc124b3035b98bea1db69f06f"
+
+[[package]]
 name = "async-tungstenite"
 version = "0.17.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -154,6 +160,7 @@ dependencies = [
 name = "dungeon-consul"
 version = "0.1.0"
 dependencies = [
+ "async-traits",
  "serde",
  "serde_json",
  "serenity",

@@ -1,3 +1,7 @@
+mod laws {
+    mod law;
+}
+
 use std::env;
 
 use serenity::async_trait;
