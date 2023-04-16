@@ -1,5 +1,5 @@
 mod laws {
-    mod law;
+    pub mod law;
 }
 
 use std::env;
@@ -8,6 +8,9 @@ use serenity::async_trait;
 use serenity::model::channel::Message;
 use serenity::model::gateway::Ready;
 use serenity::prelude::*;
+
+use lazy_static::lazy_static;
+use regex::Regex;
 
 struct Handler;
 
@@ -19,12 +22,41 @@ impl EventHandler for Handler {
     // Event handlers are dispatched through a threadpool, and so multiple
     // events can be dispatched simultaneously.
     async fn message(&self, ctx: Context, msg: Message) {
+        println!("Message received: {:?}", msg.content);
         if msg.content == "!ping" {
             // Sending a message can fail, due to a network error, an
             // authentication error, or lack of permissions to post in the
             // channel, so log to stdout when some error happens, with a
             // description of it.
             if let Err(why) = msg.channel_id.say(&ctx.http, "Pong!").await {
+                println!("Error sending message: {:?}", why);
+            }
+        }
+        lazy_static! {
+            static ref RE: Regex = Regex::new(r"!parselaw ```(yaml)?([^`]+)```").unwrap();
+        }
+        if let Some(caps) = RE.captures(&msg.content) {
+            let lawcode = caps.get(2).unwrap().as_str();
+            // Try to deserialize the law code
+            let law: laws::law::Law = match serde_yaml::from_str(lawcode) {
+                Ok(law) => law,
+                Err(e) => {
+                    if let Err(why) = msg
+                        .channel_id
+                        .say(&ctx.http, format!("Error parsing law: {e}"))
+                        .await
+                    {
+                        println!("Error sending message: {why:?}");
+                    }
+                    return;
+                }
+            };
+
+            // Get the natural language description of the law
+            let nl = law.natural_language();
+
+            // Send the natural language description to the channel
+            if let Err(why) = msg.channel_id.say(&ctx.http, nl).await {
                 println!("Error sending message: {:?}", why);
             }
         }
