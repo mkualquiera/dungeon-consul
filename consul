@@ -1,0 +1,8 @@
+law_proposals:
+  '752900961214791722':
+  - law:
+      name: test
+      actions:
+      - !CreateChannel
+        name: honk
+    voting_message_id: '1097309677894778900'
